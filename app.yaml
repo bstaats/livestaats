@@ -1,0 +1,18 @@
+application: livestaats
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+
+# referencing the tmp dir for dev. Pull build out and reference before deploy
+- url: /
+  static_files: tmp/build/static/livestaats/en/aaad44a0c02b8653d9230f57f6e3c531c8d6bb72/index.html
+  upload: tmp/build/static/livestaats/en/index.html
+  mime_type: text/html
+
+- url: /static
+  static_dir: tmp/build/static
+
+- url: .*
+  script: main.py

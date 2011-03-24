@@ -1,7 +1,9 @@
-A website for visualizing my RescueTime (www.rescuetime.com) data.
+A website for visualizing my RescueTime data.
 
 Built with:
 
-Sproutcore
-GAE
-D3
+Sproutcore TemplateViews (guides.sproutcore.com/html_based.html)
+Compass styling (compass-style.org)
+Google App Engine hosting (code.google.com/appengine)
+RescueTime service and API for data tracking and storage (www.rescuetime.com)
+D3 for the purrty visualizations (mbostock.github.com/d3)
