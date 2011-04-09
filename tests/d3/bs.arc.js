@@ -3,17 +3,18 @@ if(bs === undefined) var bs = {};
 bs.Arc = function(options){
   var that      = this,
       el        = options.el,
-      interval  = options.interval,
       color     = pv.Colors.category19(),
       width     = el.property('clientWidth'),
       height    = el.property('clientHeight'),
       keys      = [];
 
   that.render = function(json){
-    var hours = (interval[1].getTime() - interval[0].getTime()) / (1000*60*60);
-    var daterange = d3.range(hours).map(function(d){ return new Date(interval[0].getFullYear(),interval[0].getMonth(),interval[0].getDate(),d)});
+    var daterange = d3.range(bs.hours).map(function(d){ return new Date(bs.interval[0].getFullYear(),bs.interval[0].getMonth(),bs.interval[0].getDate(),d)});
     var daterangestrings = daterange.map(function(d){return d.toString()});
-    var x = d3.scale.linear().domain(interval).range([0,width]);
+    var x = d3.scale.linear().domain(bs.interval).range([0,width]);
+
+    var format = pv.Format.date("%I");
+    if(bs.hours>24) format = pv.Format.date("%a %d %b");
 
 
 /*
@@ -24,7 +25,7 @@ bs.Arc = function(options){
 
     var linknest  = d3.nest()
       .key(function(d){ return d[3]; })
-      .map(json.rows);
+      .map(json);
 
 /*
     var keys = d3.keys(nodenest);
@@ -33,18 +34,16 @@ bs.Arc = function(options){
     })
 */
     graph.nodes = daterange.map(function(d){
-      return {nodeName:d};      
+      return {nodeName:d};
     });
 
 
     graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
       return values.map(function(v,i){
-        // if there is a second occurance and together is longer than a min
-        if(values[i+1] && (v[1]+values[i+1][1])>(60)){
-          console.log(v)
+        // if there is a second occurance and together is longer than a 5 min
+        if(values[i+1] && (v[1]+values[i+1][1])>(300)){
           var seconds = v[1]+values[i+1][1];
           maxy = Math.max(maxy, seconds);
-//console.log(v[0],values[i+1][0], daterangestrings.indexOf(new Date(v[0]).toString()),daterangestrings.indexOf(new Date(values[i+1][0]).toString()));
           return {source:daterangestrings.indexOf(new Date(v[0]).toString()),
                   target:daterangestrings.indexOf(new Date(values[i+1][0]).toString()),
                   group: v[3],
@@ -54,7 +53,7 @@ bs.Arc = function(options){
         }
       });
     })));
-    
+
     var y = d3.scale.linear().domain([1,maxy]).range([2,height/10]);
 /*
     graph.nodes = json.rows.map(function(row){
@@ -94,7 +93,7 @@ bs.Arc = function(options){
       .fillStyle(pv.Colors.category19().by(function(d){return d.group}))
       .strokeStyle(function(){return this.fillStyle().darker()});
 */
-      
+
     layout.link.add(pv.Line)
       .def("active", -1)
       .strokeStyle(function(d,l){return color(l.group).alpha(0.75)})
@@ -110,12 +109,13 @@ bs.Arc = function(options){
         .textAlign("center")
         .textBaseline("bottom")
         .textStyle('#fff')
+        .font("18px sans-serif")
         .visible(function(){return this.proto.active() == this.index})
         .text(function(p){return p.group});
 
 
     vis.add(pv.Rule)
-      .data(x.ticks(12))
+      .data(x.ticks(14))
       .left(x)
       .bottom(-10)
       .height(8)
@@ -124,11 +124,23 @@ bs.Arc = function(options){
         .textStyle('#444')
         .textBaseline("top")
         .textMargin(0)
-        .text(function(d){return pv.Format.date("%I")(new Date(d))});
+        .text(function(d){return formatedHour(d,this.index)});
 
 
     vis.render();
+
+    function formatedHour(d,i){
+      if(format(new Date(d))==12 && i==0){
+        return format(new Date(d))+'am';
+      }else if(format(new Date(d))==12 && i!=0){
+        return format(new Date(d))+'pm';
+      }else{
+        return format(new Date(d));
+      }
+    }
+
   }
+
 
 
   that.render(options.json);

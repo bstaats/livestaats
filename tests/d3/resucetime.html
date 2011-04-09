@@ -23,20 +23,29 @@
   </style>
 
   <script type="text/javascript" charset="utf-8">
+    var bs         = {},
+        now        = new Date();
+      
+    bs.interval    = [new Date(now.getFullYear(),now.getMonth(),now.getDate()),new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)],
+    bs.hours       = (bs.interval[1].getTime() - bs.interval[0].getTime()) / (1000*60*60);
+
+
     var baseurl     = 'https://www.rescuetime.com/anapi/data?format=json&key=' +
                       'B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s',
         perspective = '&by=interval',
         resolution  = ['&i=hour','&i=day','&i=week','&i=month'],
         kind        = ["&ty=category","&ty=activity","&ty=productivity","&ty=efficiency"],
-        now         = new Date(),
-        interval    = [new Date(now.getFullYear(),now.getMonth(),now.getDate()),new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)],
         format      = d3.time.format('%Y-%m-%d'),
-        end         = '&re=' + format(interval[1]),
-        begin       = '&rb=' + format(interval[0]),
-        caturl      = baseurl + perspective + resolution[0] + kind[0] + begin + end,
-        prourl      = baseurl + perspective + resolution[0] + kind[2] + begin + end;
-console.log(begin,end, now,interval)
-console.log(caturl)
+        end         = '&re=' + format(bs.interval[1]),
+        begin       = '&rb=' + format(bs.interval[0]),
+        caturl      = baseurl +
+                      perspective +
+                      (bs.hours>24 ? resolution[1] : resolution[0]) +
+                      kind[0] +
+                      begin +
+                      end;
+
+
   </script>
 
 </head>
@@ -47,19 +56,11 @@ console.log(caturl)
   <script type="text/javascript" charset="utf-8">
     var jsondata,dates, linknest, nodenest, graph={}, maxy=-Infinity;
     d3.json(caturl, function(json){
-      d3.json(prourl, function(json2){
-        console.log(json,json2);
-        var data = json.rows.map(function(r,i){
-          console.log(r,i,json2.rows[i]);
-          return d3.merge([r,json2.rows[i]]);
-        });
-        console.log(data);
-        new bs.Arc({
-          el: d3.select('#vis'),
-          interval:interval,
-          json:data
-        });
+      new bs.Arc({
+        el: d3.select('#vis'),
+        json:json.rows
       });
+
     });
   </script>
 </body>
