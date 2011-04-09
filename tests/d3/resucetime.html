@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>resucetime</title>
+	<meta name="generator" content="TextMate http://macromates.com/">
+	<meta name="author" content="Brian Staats">
+  <script src="array.js" type="text/javascript" charset="utf-8"></script>
+  <script src="d3.js" type="text/javascript" charset="utf-8"></script>
+	<script src="d3.layout.js" type="text/javascript" charset="utf-8"></script>
+	<script src="d3.time.js" type="text/javascript" charset="utf-8"></script>
+	<script src="protovis-d3.3.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    body{
+      background-color:#000;
+    }
+    #vis{
+      width:1024px;
+      height:400px;
+    }
+  </style>
+
+  <script type="text/javascript" charset="utf-8">
+    var baseurl     = 'https://www.rescuetime.com/anapi/data?format=json&key=' +
+                      'B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s',
+        perspective = '&by=interval',
+        resolution  = ['&i=hour','&i=day','&i=week','&i=month'],
+        kind        = ["&ty=category","&ty=activity","&ty=productivity","&ty=efficiency"],
+        now         = new Date(),
+        interval    = [new Date(now.getFullYear(),now.getMonth(),now.getDate()),new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)],
+        format      = d3.time.format('%Y-%m-%d'),
+        end         = '&re=' + format(interval[1]),
+        begin       = '&rb=' + format(interval[0]),
+        url         = baseurl + perspective + resolution[0] + kind[0] + begin + end;
+
+  </script>
+
+</head>
+<body>
+  <div id="vis"></div>
+  <script src="bs.arc.js" type="text/javascript" charset="utf-8"></script>
+  
+  <script type="text/javascript" charset="utf-8">
+    var jsondata,dates, linknest, nodenest, graph={}, maxy=-Infinity;
+    d3.json('data2.js', function(json){
+      new bs.Arc({
+        el: d3.select('#vis'),
+        interval:interval,
+        json:json
+      });
+        
+    });
+  </script>
+</body>
+</html>

@@ -1,41 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
-
-<html lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>resucetime</title>
-	<meta name="generator" content="TextMate http://macromates.com/">
-	<meta name="author" content="Brian Staats">
-  <script src="array.js" type="text/javascript" charset="utf-8"></script>
-  <script src="d3.js" type="text/javascript" charset="utf-8"></script>
-	<script src="d3.layout.js" type="text/javascript" charset="utf-8"></script>
-	<script src="d3.time.js" type="text/javascript" charset="utf-8"></script>
-	<script src="protovis-d3.3.js" type="text/javascript" charset="utf-8"></script>
-
-
-  <script type="text/javascript" charset="utf-8">
-    var baseurl     = 'https://www.rescuetime.com/anapi/data?format=json&key=' +
-                      'B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s',
-        perspective = '&by=interval',
-        resolution  = ['&i=hour','&i=day','&i=week','&i=month'],
-        kind        = ["&ty=category","&ty=activity","&ty=productivity","&ty=efficiency"],
-        now         = new Date(),
-        interval    = [new Date(now.getFullYear(),now.getMonth(),now.getDate()-30), now],
-        format      = d3.time.format('%Y-%m-%d'),
-        end         = '&re=' + format(interval[1]),
-        begin       = '&rb=' + format(interval[0]);
-
-    var url = baseurl + perspective + resolution[0] + kind[0] + begin + end,
-        h = 500,
-        w = 960;
-console.log(url);
-  </script>
-
-</head>
-<body>
-  <div id="vis"></div>
-  <script type="text/javascript" charset="utf-8">
     d3.json('data2.js', function(json){
 
       var volumes = [],
@@ -76,14 +38,13 @@ console.log(url);
           y       = d3.scale.linear().domain([0,my]).range([0,h]);
 
 
-console.log(mx,my,x(dates[0]),x(dates[1]))
 /*
       var area = d3.svg.area()
         .x(function(d) { return x(d.x) * w / mx; })
         .y0(function(d) { return h - y(d.y0) * h / my; })
         .y1(function(d) { return h - (y(d.y) + y(d.y0)) * h / my; });
 */
-      var area = d3.svg.area()
+      var area = d3.svg.area().interpolate("basis")
         .x(function(d) { return x(d.x); })
         .y0(function(d) { return h - d.y0 * h / my; })
         .y1(function(d) { return h - (d.y + d.y0) * h / my; });
@@ -103,6 +64,3 @@ console.log(mx,my,x(dates[0]),x(dates[1]))
 
 
     });
-  </script>
-</body>
-</html>
