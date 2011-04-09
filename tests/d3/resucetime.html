@@ -33,8 +33,10 @@
         format      = d3.time.format('%Y-%m-%d'),
         end         = '&re=' + format(interval[1]),
         begin       = '&rb=' + format(interval[0]),
-        url         = baseurl + perspective + resolution[0] + kind[0] + begin + end;
-
+        caturl      = baseurl + perspective + resolution[0] + kind[0] + begin + end,
+        prourl      = baseurl + perspective + resolution[0] + kind[2] + begin + end;
+console.log(begin,end, now,interval)
+console.log(caturl)
   </script>
 
 </head>
@@ -44,13 +46,20 @@
   
   <script type="text/javascript" charset="utf-8">
     var jsondata,dates, linknest, nodenest, graph={}, maxy=-Infinity;
-    d3.json('data2.js', function(json){
-      new bs.Arc({
-        el: d3.select('#vis'),
-        interval:interval,
-        json:json
+    d3.json(caturl, function(json){
+      d3.json(prourl, function(json2){
+        console.log(json,json2);
+        var data = json.rows.map(function(r,i){
+          console.log(r,i,json2.rows[i]);
+          return d3.merge([r,json2.rows[i]]);
+        });
+        console.log(data);
+        new bs.Arc({
+          el: d3.select('#vis'),
+          interval:interval,
+          json:data
+        });
       });
-        
     });
   </script>
 </body>
