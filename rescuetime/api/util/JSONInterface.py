@@ -3,8 +3,8 @@ try:
     from cjson import encode as serialize
 except ImportError:
     try:
-        from django.utils.simplejson import loads as deserialize
-        from django.utils.simplejson import dumps as serialize
+        from simplejson import loads as deserialize
+        from simplejson import dumps as serialize
     except ImportError:
         try:
             from json import read as deserialize
