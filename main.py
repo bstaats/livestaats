@@ -15,19 +15,30 @@
 # limitations under the License.
 #
 import os
+import datetime
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 
-from rescuetime.api.service import Service
+from dataservices.DataFetcher import DataFetcher
+from simplejson import dumps
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
-    
-    s = Service()
-    
-    temp_values = {}
+
+    df   = DataFetcher()
+    data = df.rescuetime({'op': 'select',
+                         'vn': 0,
+                         'pv': 'interval',
+                         'rs': 'hour',
+                         'rb': (datetime.date.today() - datetime.timedelta(days = 1)).strftime('%Y-%m-%d'),
+                         're': (datetime.date.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d'),
+                         'rk': 'overview',
+                         'ot': 'hour',
+                         })
+
+    temp_values = {'data':dumps(data)}
     temp_file   = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(temp_file, temp_values))
 

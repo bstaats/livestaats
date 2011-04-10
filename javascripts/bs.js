@@ -36,11 +36,12 @@ bs.Rescuetime = function(){
   }
 
   that.loadToday  = function(){
-    var url       = baseurl + perspective + resolution[0] + kind[0] + begin + end;
+    //var url       = baseurl + perspective + resolution[0] + kind[0] + begin + end;
     
     
     
     //d3.json(url, function(json){
+/*
 
       $.getJSON(url, function(dat){console.log(dat);})
         .success(function(d) {console.log("second success", this,d); })
@@ -53,40 +54,18 @@ bs.Rescuetime = function(){
           
           });
         
+*/
 
- /*
+
         
-         console.log(json)
-         console.log(data);
-       if(json){
+       if(DATA){
 
-         var nest  = d3.nest()
-           .key(function(d){ return d[3]; })
-           .map(json.rows);
-
-         var anydata = false;
-         d3.values(nest).forEach(function(d){
-           if(d.length>1){ anydata=true;return;}
+         $('#support span').html('Today '+pv.Format.date('%b %d %Y')(new Date()));
+         new bs.Arc({
+           el: d3.select('#vis'),
+           json:DATA.rows
          });
-
-         //that.loadWeek();
-
-         if(anydata){
-           $('#support span').html('Today '+pv.Format.date('%b %d %Y')(new Date()));
-           new bs.Arc({
-             el: d3.select('#vis'),
-             json:json.rows
-           });
-         }else{
-           that.loadWeek();
-         }
-
-       }else{
-         $('#vis').prepend($('#nodata'));
-         $('#support').remove();
-       }
-
-     });*/
+      }
    }
  
 }

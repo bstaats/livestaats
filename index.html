@@ -43,7 +43,7 @@
 
   <script type="text/javascript" charset="utf-8">
     var LINKS = ['http://www.flickr.com/photos/brianstaats','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'];
-
+    var DATA = {{data}};
     $(document).ready(function() {
       $('#icons li').each(function(i,d){
         $(d).click(function(){window.location = LINKS[i];});
@@ -52,7 +52,7 @@
 
       if(document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")){
         $('#container').append($('#support'));
-        //new bs.Rescuetime().loadToday();
+        new bs.Rescuetime().loadToday();
       }else{
         $('#vis').append($('#nosupport'));
       }
