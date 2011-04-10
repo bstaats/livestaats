@@ -8,9 +8,9 @@ from rescuetime.api.access.AnalyticApiKey import AnalyticApiKey
 from rescuetime.api.model.ResponseData import ResponseData
 
 def test1():
-    s = Service('http://localhost:3000')
+    s = Service()
     s.debug(s.server_loc)
-    k = AnalyticApiKey('B63C4fZ0bQb6iu1EXYPMhsFLT_VqUhutPiu9fIwP', s)
+    k = AnalyticApiKey('B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s', s)
     s.debug('exists: ' + unicode(k.exists()))
     r = ResponseData(k, {'op': 'select',
                          'vn': 0,
@@ -29,9 +29,9 @@ def test1():
                 s.debug("\n\t\trow(%d): %s\n-------\n" % (len(ro), unicode(ro)))
 
 def test2():
-    s = Service('http://localhost:3000')
+    s = Service()
     s.debug(s.server_loc)
-    k = AnalyticApiKey('B63C4fZ0bQb6iu1EXYPMhsFLT_VqUhutPiu9fIwP', s)
+    k = AnalyticApiKey('B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s', s)
     s.debug('exists: ' + unicode(k.exists()))
     r = ResponseData(k)
     today = datetime.date.today()

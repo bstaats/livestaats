@@ -37,7 +37,7 @@ class ResponseData(Syncable):
     for k in  HTTP_PARAMS:
         HTTP_PARAMS_R[HTTP_PARAMS[k]] = k
 
-    def __init__(self, key = None, **kws):
+    def __init__(self, key = None, poo=None, **kws):
         super(ResponseData, self).__init__()
         self.key = key
         self._parameters = {}
