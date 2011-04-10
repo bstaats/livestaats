@@ -1,5 +1,5 @@
 application: livestaats
-version: 1
+version: stage
 runtime: python
 api_version: 1
 
@@ -14,10 +14,9 @@ handlers:
 - url: /images
   static_dir: images
 
-- url: /
-  static_files: index.html
-  upload: index.html
-
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
 
 - url: .*
   script: main.py
