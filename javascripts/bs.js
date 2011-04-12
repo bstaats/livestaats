@@ -1,81 +1,11 @@
 if(bs === undefined) var bs = {};
 
-bs.Rescuetime = function(){
-  var that        = this,
-      now         = new Date();
-
-  // default is just today
-  bs.interval     = [new Date(now.getFullYear(),now.getMonth(),now.getDate()),new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)],
-  bs.hours        = (bs.interval[1].getTime() - bs.interval[0].getTime()) / (1000*60*60);
-  bs.secondsFilter= 300;  // 5min
-
-  var baseurl     = 'https://www.rescuetime.com/anapi/data?format=json&callback=?&key=' +
-                    'B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s', // please use your own key.. its free
-      perspective = '&by=interval',
-      resolution  = ['&i=hour','&i=day','&i=week','&i=month'],
-      kind        = ["&ty=category","&ty=activity","&ty=productivity","&ty=efficiency"],
-      format      = pv.Format.date('%Y-%m-%d'),
-      end         = '&re=' + format(bs.interval[1]),
-      begin       = '&rb=' + format(bs.interval[0]);
-
-  that.loadWeek   = function(){
-    bs.interval     = [new Date(now.getFullYear(),now.getMonth(),now.getDate()-6),new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)],
-    bs.hours        = (bs.interval[1].getTime() - bs.interval[0].getTime()) / (1000*60*60);
-    begin           = '&rb=' + format(bs.interval[0]);
-    var url         = baseurl + perspective + resolution[0] + kind[0] + begin + end;
-    bs.secondsFilter= 600;  // 10min
-
-    $('#support span').html('The week of '+pv.Format.date('%b %d %Y')(new Date()));
-
-    d3.json(url, function(json){
-      new bs.Arc({
-        el: d3.select('#vis'),
-        json:json.rows
-      });
-    });
-  }
-
-  that.loadToday  = function(){
-    //var url       = baseurl + perspective + resolution[0] + kind[0] + begin + end;
-    
-    
-    
-    //d3.json(url, function(json){
-/*
-
-      $.getJSON(url, function(dat){console.log(dat);})
-        .success(function(d) {console.log("second success", this,d); })
-        .error(function(d) { console.log("error", this,d); })
-        .complete(function(d) {
-          
-          console.log("complete", this,d);
-          
-          
-          
-          });
-        
-*/
-
-
-        
-       if(DATA){
-
-         $('#support span').html('Today '+pv.Format.date('%b %d %Y')(new Date()));
-         new bs.Arc({
-           el: d3.select('#vis'),
-           json:DATA.rows
-         });
-      }
-   }
- 
-}
-
-
-
-
 bs.Arc = function(options){
   var that      = this,
       el        = options.el,
+      interval  = options.interval.map(function(d){return new Date(d)}),
+      hours     = (interval[1].getTime() - interval[0].getTime()) / (1000*60*60),
+      secFilter = options.secFilter || 300,
       color     = pv.Colors.category19(),
       width     = el.property('clientWidth'),
       height    = el.property('clientHeight'),
@@ -84,19 +14,23 @@ bs.Arc = function(options){
       keys      = [];
 
   that.render = function(json){
-    range2dates = function(d){ return new Date(bs.interval[0].getFullYear(),bs.interval[0].getMonth(),bs.interval[0].getDate(),d)};
+    range2dates = function(d){ return new Date(interval[0].getFullYear(),interval[0].getMonth(),interval[0].getDate(),d)};
 
-    var daterange        = d3.range(bs.hours).map(range2dates),
-        ticks            = d3.range(0,bs.hours,2).map(range2dates),
+    var daterange        = d3.range(hours).map(range2dates),
+        ticks            = d3.range(0,hours,2).map(range2dates),
         daterangestrings = daterange.map(function(d){return d.toString()}),
 
         // pv.Scale and d3.scale does not handle date ticks very well.
-        x                = pv.Scale.linear().domain(bs.interval).range(0,width),
+        x                = pv.Scale.linear().domain(interval).range(0,width),
         format           = pv.Format.date("%I");
 
-    if(bs.hours>24){
+    if(hours>24){
+      $('#support span').html('The week of '+pv.Format.date('%b %d %Y')(new Date()));
       format = pv.Format.date("%a %d %b");
       ticks  = x.ticks(12);
+      secFilter = 600;
+    }else{
+      $('#support span').html('Today '+pv.Format.date('%b %d %Y')(new Date()));
     }
 
     var linknest  = d3.nest()
@@ -110,7 +44,7 @@ bs.Arc = function(options){
     graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
       return values.map(function(v,i){
         // if there is a second occurance and together is longer secondsFilter
-        if(values[i+1] && (v[1]+values[i+1][1]) > bs.secondsFilter){
+        if(values[i+1] && (v[1]+values[i+1][1]) > secFilter){
           var seconds = v[1]+values[i+1][1];
           maxy = Math.max(maxy, seconds);
           return {source:daterangestrings.indexOf(new Date(v[0]).toString()),
@@ -144,15 +78,16 @@ bs.Arc = function(options){
       .add(pv.Label)
         .data(function(p){return [{
           group: p.group,
+          value: p.linkValue,
           x: (p.sourceNode.x + p.targetNode.x) / 2,
-          y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2))
+          y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - 20 // 20 margin
         }]})
         .textAlign("center")
         .textBaseline("bottom")
         .textStyle('#fff')
         .font("18px sans-serif")
         .visible(function(){return this.proto.active() == this.index})
-        .text(function(p){return p.group});
+        .text(function(p){return p.group});//+' '+pv.Format.date('%M:%S')(new Date(p.value*1000))});
 
     vis.add(pv.Rule)
       .data(ticks)

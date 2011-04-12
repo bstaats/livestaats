@@ -27,18 +27,21 @@ from simplejson import dumps
 class MainHandler(webapp.RequestHandler):
   def get(self):
 
+    interval = [datetime.date.today().strftime('%Y-%m-%d'),
+                (datetime.date.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')]
+
     df   = DataFetcher()
     data = df.rescuetime({'op': 'select',
                          'vn': 0,
                          'pv': 'interval',
                          'rs': 'hour',
-                         'rb': (datetime.date.today() - datetime.timedelta(days = 1)).strftime('%Y-%m-%d'),
-                         're': (datetime.date.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d'),
-                         'rk': 'overview',
+                         'rb': interval[0],
+                         're': interval[1],
+                         'rk': 'category',
                          'ot': 'hour',
                          })
 
-    temp_values = {'data':dumps(data)}
+    temp_values = {'data':dumps(data),'interval':dumps(interval)}
     temp_file   = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(temp_file, temp_values))
 

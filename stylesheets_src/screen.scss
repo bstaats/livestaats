@@ -122,7 +122,6 @@ ul#icons {
     @include float-left;
     display: none;
   }
-  
 } //ul#icons
 
 
@@ -137,7 +136,7 @@ div#vis {
   h2{
     color: $grey;
     span{
-      color: $grey;
+      color: $lgrey;
     }
   }
 }

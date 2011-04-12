@@ -42,8 +42,10 @@
   <script src="javascripts/bs.js" type="text/javascript" charset="utf-8"></script>
 
   <script type="text/javascript" charset="utf-8">
-    var LINKS = ['http://www.flickr.com/photos/brianstaats','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'];
-    var DATA = {{data}};
+    var LINKS    = ['http://www.flickr.com/photos/brianstaats','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'],
+        DATA     = {{data}},
+        INTERVAL = {{interval}};
+
     $(document).ready(function() {
       $('#icons li').each(function(i,d){
         $(d).click(function(){window.location = LINKS[i];});
@@ -52,7 +54,13 @@
 
       if(document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")){
         $('#container').append($('#support'));
-        new bs.Rescuetime().loadToday();
+
+        new bs.Arc({
+          el: d3.select('#vis'),
+          json:DATA.rows,
+          interval:INTERVAL
+        });
+
       }else{
         $('#vis').append($('#nosupport'));
       }

@@ -25,7 +25,7 @@ class DataFetcher:
     s = Service()
     s.debug(s.server_loc)
     k = AnalyticApiKey('B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s', s)
-    r = ResponseData(k, params)
+    r = ResponseData(k, **params)
     r.sync()
     return r.object
 

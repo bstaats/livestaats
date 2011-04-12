@@ -37,7 +37,7 @@ class ResponseData(Syncable):
     for k in  HTTP_PARAMS:
         HTTP_PARAMS_R[HTTP_PARAMS[k]] = k
 
-    def __init__(self, key = None, poo=None, **kws):
+    def __init__(self, key = None, **kws):
         super(ResponseData, self).__init__()
         self.key = key
         self._parameters = {}
@@ -62,8 +62,13 @@ class ResponseData(Syncable):
             try:
                 self._parameters[self.HTTP_PARAMS[k]] = kws[k]
             except KeyError:
-                if self.HTTP_PARAMS[k]: # check if key is there else raise
-                    self._parameters[k] = kws[k]
+                try:
+                    if self.HTTP_PARAMS[k]: 
+                        self._parameters[k] = kws[k]
+                except KeyError: # check if key is there else raise
+                    if self.HTTP_PARAMS_R[k]:
+                        self._parameters[self.HTTP_PARAMS_R[k]] = kws[k]
+                    
         return self
     param = params
     p = params
