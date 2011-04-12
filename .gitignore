@@ -41,3 +41,8 @@ Thumbs.db
 .sass-cache
 frameworks/*
 *.pyc
+/simplejson/__init__.pyc
+/simplejson/decoder.pyc
+/simplejson/encoder.pyc
+/simplejson/ordered_dict.pyc
+/simplejson/scanner.pyc
