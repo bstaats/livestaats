@@ -13,21 +13,33 @@ bs.Arc = function(options){
       maxy      = -Infinity,
       keys      = [];
 
+
   that.render = function(json){
     range2dates = function(d){ return new Date(interval[0].getFullYear(),interval[0].getMonth(),interval[0].getDate(),d)};
 
-    var daterange        = d3.range(hours).map(range2dates),
-        ticks            = d3.range(0,hours,2).map(range2dates),
-        daterangestrings = daterange.map(function(d){return d.toString()}),
+    function expandTime(array){
+      return array.map(function(d){
+        d[0] = new Date(d[0]);
+        d[0].setSeconds(d[1]);
+        return d
+      });
+    }
 
-        // pv.Scale and d3.scale does not handle date ticks very well.
-        x                = pv.Scale.linear().domain(interval).range(0,width),
-        format           = pv.Format.date("%I");
+    // account for activity within an hour (resucetime only returns whole hours)
+    graph.nodes = expandTime(json);
+    // add interval bounds
+    graph.nodes.unshift([ interval[0] ]);
+    graph.nodes.push([ interval[1] ]);
+
+    var ticks     = d3.range(0,hours,2).map(range2dates),
+        datetimes = graph.nodes.map(function(d){return d[0]}),
+        x         = pv.Scale.linear().domain(interval).range(0,width),
+        format    = pv.Format.date("%I");
 
     if(hours>24){
       $('#support span').html('The week of '+pv.Format.date('%b %d %Y')(new Date()));
-      format = pv.Format.date("%a %d %b");
-      ticks  = x.ticks(12);
+      format    = pv.Format.date("%a %d %b");
+      ticks     = x.ticks(12);
       secFilter = 600;
     }else{
       $('#support span').html('Today '+pv.Format.date('%b %d %Y')(new Date()));
@@ -37,18 +49,14 @@ bs.Arc = function(options){
       .key(function(d){ return d[3]; })
       .map(json);
 
-    graph.nodes = daterange.map(function(d){
-      return {nodeName:d};
-    });
-
-    graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
+  graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
       return values.map(function(v,i){
         // if there is a second occurance and together is longer secondsFilter
         if(values[i+1] && (v[1]+values[i+1][1]) > secFilter){
           var seconds = v[1]+values[i+1][1];
           maxy = Math.max(maxy, seconds);
-          return {source:daterangestrings.indexOf(new Date(v[0]).toString()),
-                  target:daterangestrings.indexOf(new Date(values[i+1][0]).toString()),
+          return {source:datetimes.indexOf(v[0]),
+                  target:datetimes.indexOf(values[i+1][0]),
                   group: v[3],
                   value:seconds}
         }else{
@@ -69,9 +77,16 @@ bs.Arc = function(options){
         .nodes(graph.nodes)
         .links(graph.links);
 
+    layout.node.add(pv.Dot)
+      .data(function(){return layout.nodes().map(function(n){
+        n.x = x(n[0]);
+        return n;
+        })
+      }).fillStyle(null).strokeStyle(null);
+
     layout.link.add(pv.Line)
       .def("active", -1)
-      .strokeStyle(function(d,l){return color(l.group).alpha(0.75)})
+      .strokeStyle(function(d,l){return color(l.group).alpha(0.5)})
       .lineWidth(function(n,l){return y(l.linkValue)})
       .event("mouseover", function(){return  this.active(this.index).parent})
       .event("mouseout", function(){return  this.active(-1).parent})

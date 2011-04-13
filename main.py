@@ -22,32 +22,52 @@ from google.appengine.ext.webapp import util
 from google.appengine.ext.webapp import template
 
 from dataservices.DataFetcher import DataFetcher
-from simplejson import dumps
+from simplejson import dumps, loads
+from utils import getTimezone, UTC
+
+
+class DataHandler(webapp.RequestHandler):
+  """docstring for DataHandler"""
+  def get(self):
+    now = datetime.datetime.now(UTC).astimezone(getTimezone('US/Eastern'))
+
+    interval = [now.strftime('%Y-%m-%d'),
+                (now + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')]
+
+    params   = {
+               'pv': 'interval',
+               'rs': 'hour',
+               'rb': interval[0],
+               're': interval[1],
+               'rk': 'category'
+               }
+
+    df   = DataFetcher()
+    data = df.rescuetime(params)
+
+    if not data['rows']:
+      interval[0] = (now - datetime.timedelta(days = 6)).strftime('%Y-%m-%d')
+  
+      params['rs'] = 'hours'
+      params['rb'] = interval[0]
+      params['re'] = interval[1]
+  
+      data = df.rescuetime(params)
+
+    self.response.out.write(dumps({'data':data,'interval':interval}))
+
 
 class MainHandler(webapp.RequestHandler):
   def get(self):
-
-    interval = [datetime.date.today().strftime('%Y-%m-%d'),
-                (datetime.date.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')]
-
-    df   = DataFetcher()
-    data = df.rescuetime({'op': 'select',
-                         'vn': 0,
-                         'pv': 'interval',
-                         'rs': 'hour',
-                         'rb': interval[0],
-                         're': interval[1],
-                         'rk': 'category',
-                         'ot': 'hour',
-                         })
-
-    temp_values = {'data':dumps(data),'interval':dumps(interval)}
+    temp_values = {}
     temp_file   = os.path.join(os.path.dirname(__file__), 'index.html')
     self.response.out.write(template.render(temp_file, temp_values))
 
 
 def main():
-  application = webapp.WSGIApplication([('/', MainHandler)],
+  application = webapp.WSGIApplication([('/', MainHandler),
+                                        ('/data', DataHandler)
+                                       ],
                                        debug=True)
   util.run_wsgi_app(application)
 

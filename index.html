@@ -17,7 +17,7 @@
       <li class='i3'><div></div><p>Google Profile</p></li>
       <li class='i4'><div></div><p>My Tweets</p></li>
     </ul>
-    <div id="vis"></div>
+    <div id="vis"><img src="images/loader.gif" width="64" height="64" alt="Loader"></div>
   </div>
   <div style='display:none;'>
     <div id='nosupport'>
@@ -42,9 +42,7 @@
   <script src="javascripts/bs.js" type="text/javascript" charset="utf-8"></script>
 
   <script type="text/javascript" charset="utf-8">
-    var LINKS    = ['http://www.flickr.com/photos/brianstaats','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'],
-        DATA     = {{data}},
-        INTERVAL = {{interval}};
+    var LINKS    = ['http://www.flickr.com/photos/brianstaats','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'];
 
     $(document).ready(function() {
       $('#icons li').each(function(i,d){
@@ -55,10 +53,20 @@
       if(document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")){
         $('#container').append($('#support'));
 
-        new bs.Arc({
-          el: d3.select('#vis'),
-          json:DATA.rows,
-          interval:INTERVAL
+        d3.json('/data', function(json){
+
+          if(json.data){
+            $('#vis img').remove();
+            new bs.Arc({
+              el: d3.select('#vis'),
+              json:json.data.rows,
+              interval:json.interval
+            });
+          }else{
+            $('#vis').prepend($('#nodata'));
+            $('#support').remove();
+          }
+
         });
 
       }else{
