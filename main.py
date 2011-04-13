@@ -23,13 +23,16 @@ from google.appengine.ext.webapp import template
 
 from dataservices.DataFetcher import DataFetcher
 from simplejson import dumps, loads
-from utils import getTimezone, UTC
-
+#from utils import getTimezone, UTC
+from tz_helper import timezone
 
 class DataHandler(webapp.RequestHandler):
   """docstring for DataHandler"""
   def get(self):
-    now = datetime.datetime.now(UTC).astimezone(getTimezone('US/Eastern'))
+    #utc_dt = datetime(2002, 10, 27, 6, 0, 0, tzinfo=utc)
+    #loc_dt = utc_dt.astimezone(eastern)
+    
+    now = datetime.datetime.now(timezone('UTC')).astimezone(timezone('US/Eastern'))
 
     interval = [now.strftime('%Y-%m-%d'),
                 (now + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')]
@@ -45,7 +48,7 @@ class DataHandler(webapp.RequestHandler):
     df   = DataFetcher()
     data = df.rescuetime(params)
 
-    if not data['rows']:
+    if data and not data['rows']:
       interval[0] = (now - datetime.timedelta(days = 6)).strftime('%Y-%m-%d')
 
       params['rs'] = 'hours'
