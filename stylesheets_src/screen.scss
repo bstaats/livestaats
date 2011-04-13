@@ -3,9 +3,16 @@ $header: 'header_01.gif';
 $name:   'name.png';
 //$sprite-default-size: 60px;
 $orange: #bd9e39;
+$dwhite: #ccc;
 $lgrey: #999;
 $grey: #4d4d4d;
 $dgrey: #333;
+
+
+$size1: 56px;
+$size2: 16px;
+$size3: 12px;
+
 
 // This import applies a global reset to any page that imports this stylesheet.
 @import "blueprint/reset";
@@ -22,29 +29,46 @@ $dgrey: #333;
 @import "compass/utilities/sprites";
 
 
-body{
+body.bp{
   background-color: #000;
   text-align:       center;
   width:            100%;
   height:           100%;
-}
+  font-family:      "Adobe Caslon Pro", "Hoefler Text", Georgia, Garamond, Times, serif;
+  color:            $dwhite;
+  line-height:      2em;
+  letter-spacing:   0.1em;
+  text-transform:   lowercase;
+  font-variant:     small-caps;
+  p{
+    margin:0;
+  }
 
+  .highlight{
+    background-color:#000;
+    color:$dwhite;
+    font-weight:bolder;
+  }
 
-h1,h2,h3{
-  font-weight:  bolder;
-  margin-bottom:15px;
-}
+  .ital{
+    font-style: italic;
+  }
 
-h1{ font-size: 52px;}
-h2{ font-size: 20px;}
-h3{ font-size: 18px;}
+  .bang{
+    font-size:75%;
+  }
 
-a{
-  color: $orange;
-  text-decoration:none;
-  &:hover{
-    text-decoration:underline;
-  };
+  a,a:active,a:visited{
+    color: $dwhite;
+    text-decoration:none;
+    font-weight:bolder;
+    &:hover{
+      color: $dwhite;
+      text-decoration:underline;
+      font-weight:bolder;
+    };
+  }
+
 }
 
 
@@ -52,42 +76,78 @@ div#container{
   width:            $blueprint-container-size;
   margin:           auto;
   text-align:       left;
-  padding-top:      20px;
+  padding:          25px;
   position:         relative;
 }
 
-div#header {
-  background-image: image-url($header);
-  height:           image-height($header);
-  width:            image-width($header);
-} //div#header
+div#header{
+  width:400px;
+  color: $dwhite;
 
+  p.greet{
+    font-size: $size2;
+    margin-bottom: 2px;
+    span.hello{
+      text-transform: uppercase;
+    }
+    span.im{
+      font-style: italic;
+    }
+  }
 
-div#name {
-  background-image: image-url($name);
-  height:           image-height($name);
-  width:            image-width($name);
-  display: inline-block;
-} //div#header
+  p.name{
+    font-size: $size1;
+  }
+  p.tags{
+    margin-top:     8px;
+    font-size:      $size2;
+    letter-spacing: 0.15em;
+    position:       relative;
+    left:           -$size2;
+
+    span.a{
+      display: inline;
+      position:static;
+      font-style: italic;
+    }
+    .amp {
+      font-style: italic;
+      font-family: "Adobe Caslon Pro", "Hoefler Text", Palatino, "Palatino Linotype", serif;
+    }
+  }
+}
 
 
 ul#icons {
-  margin-top:   (image-height($name) / 2);
   padding:      0;
+  margin:       0;
   list-style:   none;
   position:     absolute;
-  right:        0;
-  top:          0;
+  left:         500px;
+  top:          25px;
+  font-size:    $size2;
+
+  p.aboutme{
+    height:21px;
+  }
 
   li {
     height:$sprite-default-size;
     width: $sprite-default-size;
-    margin-left: $sprite-default-size * 2;
+    margin-right: $sprite-default-size * 2;
     display: inline-block;
 
     &:hover{
       cursor: pointer;
     };
+
+    p{
+      color: $dwhite;
+      width: 200px;
+      margin-top: 4px;
+      @include float-left;
+      display: none;
+    }
   }
 
   li.i1 > div{
@@ -115,13 +175,6 @@ ul#icons {
     };
   }
 
-  li > p{
-    color: $lgrey;
-    width: 100px;
-    margin-top:5px;
-    @include float-left;
-    display: none;
-  }
 } //ul#icons
 
 
@@ -137,35 +190,70 @@ div#vis {
 } //div#vis
 
 #support{
-  position: relative;
-  top: 20px;
-  h2{
-    color: $grey;
-    span{
-      color: $lgrey;
+  clear:        both;
+
+  p.title{
+    font-size:  $size1;
+    color:      $lgrey;
+    @include    float-left;
+  }
+
+  ul{
+    position:     absolute;
+    left:         500px;
+    margin:       0;
+    padding:      0;
+    list-style:   none;
+    line-height:  100%;
+
+    li{
+      display:      inline-block;
+      margin-right: 50px;
+
+      p{
+        &.value{
+          font-size: $size2;
+        }
+        &.label{
+          color:      $grey;
+          font-size:  $size3;
+        }
+      }
     }
   }
 }
 
 #nosupport{
-  h1{
-    color: $orange;
+  margin-top:100px;
+  p{
+    color:      $lgrey;
   }
-  h2{
-    color: $lgrey;
+  p.wow{
+    color:      $orange;
+    font-size:  $size1;
   }
-  h3{
-    font-weight:normal;
+  p.bad{
+    font-size: $size2;
+  }
+  p.help{
+    font-size: $size3;
+  }
+  .ital{
+    text-transform: uppercase;
   }
 }
 
 #nodata{
-  margin-top:50px;
-  h1{
-    color: $lgrey;
+  margin-top:100px;
+  p.opss{
+    font-size:  $size1;
   }
-  h3{
-    color: $grey;
-    font-weight:normal;
+  p.what{
+    color:      $lgrey;
+    font-size:  $size2;
+  }
+  p.comeback{
+    color:      $grey;
+    font-size:  $size3;
   }
 }

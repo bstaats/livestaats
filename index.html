@@ -10,11 +10,25 @@
   <!--[if lt IE 8]>
       <link href="stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
   <![endif]-->
+
+  <script src="javascripts/typeface-0.15.js" type="text/javascript" charset="utf-8"></script>
+  <script src="javascripts/adobe_caslon_pro_regular.typeface.js" type="text/javascript" charset="utf-8"></script>
+
 </head>
 <body class='bp'>
   <div id="container">
-    <div id="name"></div>
+    <div id="header">
+      <p class="greet">
+        <span class='hello'>Hello</span>,
+        <span class='im'>I&#8217m</span>
+      </p>
+      <p class="name">Brian Staats</p>
+      <p class="tags">
+        <span class='a'>a</span> designer, scientist, <span class="amp">&amp</span> data geek
+      </p>
+    </div>
     <ul id="icons" class="icons">
+      <p class='aboutme'>About me</p>
       <li class='i1'><div></div><p>Flickr (portfolio)</p></li>
       <li class='i2'><div></div><p>LinkedIn Profile</p></li>
       <li class='i3'><div></div><p>Google Profile</p></li>
@@ -24,17 +38,22 @@
   </div>
   <div style='display:none;'>
     <div id='nosupport'>
-      <h1>Yikes!</h1>
-      <h2>Looks like your browser does NOT support awesome data visualizations</h2>
-      <h3>Use the latest <a href='http://www.google.com/chrome'>Chrome</a>, <a href='www.getfirefox.com'>Firefox</a>, or <a href='http://www.apple.com/safari/download'>Safari</a> to see what you are missing</h3>
+      <p class='wow'>Yikes<span class='bang'>&#33</span></p>
+      <p class='bad'>Looks like your browser <span class='ital'>does NOT</span> support awesome <span class='highlight'>data visualizations</span></p>
+      <p class='help'>Use the latest <a href='http://www.google.com/chrome'>Chrome</a>, <a href='www.getfirefox.com'>Firefox</a>, or <a href='http://www.apple.com/safari/download'>Safari</a> to see what you are missing</p>
     </div>
     <div id='nodata'>
-      <h1>Oppss!</h1>
-      <h3>Looks like there was a problem retrieving data. Stupid internets</h3>
-      <h3>Come back later</h3>
+      <p class='opss'>Oppss<span class='bang'>&#33</span></p>
+      <p class='what'>Looks like there was a problem retrieving data. <span class='highlight'>Stupid internets</span></p>
+      <p class='comeback ital'>Come back later</p>
     </div>
     <div id="support">
-      <h2>Work Patterns: <span></span></h2>
+      <p class='title'>Work Patterns</p>
+      <ul>
+        <li class='info'><p class='value'></p><p class='label'>Today</p></li>
+        <li></li>
+        <li class='total'><p class='value'>12hrs</p><p class='label'>Total</p></li>
+      </ul>
     </div>
   </div>
 
@@ -45,7 +64,7 @@
   <script src="javascripts/bs.js" type="text/javascript" charset="utf-8"></script>
 
   <script type="text/javascript" charset="utf-8">
-    var LINKS    = ['http://www.flickr.com/photos/brianstaats','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'];
+    var LINKS    = ['http://www.flickr.com/photos/brianstaats/4441493348/in/set-72157612034810346','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'];
 
     $(document).ready(function() {
       $('#icons li').each(function(i,d){
@@ -59,7 +78,6 @@
         d3.json('/data', function(json){
 
           if(json.data){
-            $('#vis img').remove();
             new bs.Arc({
               el: d3.select('#vis'),
               json:json.data.rows,
@@ -69,11 +87,12 @@
             $('#vis').prepend($('#nodata'));
             $('#support').remove();
           }
-
+          $('#vis img').remove();
         });
 
       }else{
         $('#vis').append($('#nosupport'));
+        $('#vis img').remove();
       }
     });
   </script>
@@ -85,6 +104,6 @@
   var pageTracker = _gat._getTracker("UA-6510422-1");
   pageTracker._trackPageview();
   </script>
-  
+
 </body>
 </html>
