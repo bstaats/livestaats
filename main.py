@@ -47,11 +47,11 @@ class DataHandler(webapp.RequestHandler):
 
     if not data['rows']:
       interval[0] = (now - datetime.timedelta(days = 6)).strftime('%Y-%m-%d')
-  
+
       params['rs'] = 'hours'
       params['rb'] = interval[0]
       params['re'] = interval[1]
-  
+
       data = df.rescuetime(params)
 
     self.response.out.write(dumps({'data':data,'interval':interval}))
