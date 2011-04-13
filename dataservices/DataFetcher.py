@@ -26,8 +26,14 @@ class DataFetcher:
     s.debug(s.server_loc)
     k = AnalyticApiKey('B63mNzrDeMVC_tMEIo5gBxGyf0eYonYTTRFcfR8s', s)
     r = ResponseData(k, **params)
-    r.sync()
-    return r.object
+
+    try:
+      r.sync()
+      json = r.object
+    except:
+      json = None
+      
+    return json
 
 class DataFetcherTests(unittest.TestCase):
   def setUp(self):
