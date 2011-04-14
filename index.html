@@ -74,7 +74,7 @@
       if(document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")){
         $('#container').append($('#support'));
 
-        d3.json('/data', function(json){
+        d3.json('data', function(json){
 
           if(json.data){
             new bs.Arc({

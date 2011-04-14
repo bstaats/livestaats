@@ -129,6 +129,7 @@ ul#icons {
 
   p.aboutme{
     height:21px;
+    margin-bottom: 2px;
   }
 
   li {
@@ -181,7 +182,7 @@ ul#icons {
 div#vis {
   width:    $blueprint-container-size;
   height:   $blueprint-container-size / 2;
-
+  margin:   50px 0 10px 0;
   img{
     margin-top:   100px;
     margin-left:  $blueprint-container-size/2;

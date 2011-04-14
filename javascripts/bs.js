@@ -1,19 +1,21 @@
 if(bs === undefined) var bs = {};
 
 bs.Arc = function(options){
-  var that      = this,
-      el        = options.el,
-      interval  = options.interval.map(function(d){return new Date(d)}),
-      hours     = (interval[1].getTime() - interval[0].getTime()) / (1000*60*60),
-      secFilter = options.secFilter || 300,
-      color     = pv.Colors.category19(),
-      width     = el.property('clientWidth'),
-      height    = el.property('clientHeight'),
-      graph     = {},
-      maxsec    = 0,
-      fontsize  = 18,
-      maxy      = fontsize,
-      keys      = [];
+  var that        = this,
+      el          = options.el,
+      interval    = options.interval.map(function(d){return new Date(d)}),
+      hours       = (interval[1].getTime() - interval[0].getTime()) / (1000*60*60),
+      secFilter   = options.secFilter || 300,
+      color       = pv.Colors.category19(),
+      width       = el.property('clientWidth'),
+      height      = el.property('clientHeight'),
+      lineWidth   = 50,
+      graph       = {},
+      maxsec      = 0,
+      fontsize    = 18,
+      labelHeight = 20,
+      ruleHeight  = 20,
+      maxy        = 0;
 
 
   that.render = function(json){
@@ -68,17 +70,20 @@ bs.Arc = function(options){
       });
     })));
 
-    var y = d3.scale.linear().domain([1,maxsec]).range([2,height/10]);
+    var y = d3.scale.linear().domain([1,maxsec]).range([1,lineWidth]);
 
     var vis = new pv.Panel()
         .canvas(el.attr('id'))
         .width(width)
         .height(height)
-        .bottom(20);
+        .bottom(ruleHeight);
 
-    var layout = vis.add(pv.Layout.Arc)
+    var g = vis.add(pv.Panel);
+
+    var layout = g.add(pv.Layout.Arc)
         .nodes(graph.nodes)
         .links(graph.links);
+
 
     layout.node.add(pv.Dot)
       .data(function(){return layout.nodes().map(function(n){
@@ -98,20 +103,21 @@ bs.Arc = function(options){
           return [{ group: p.group,
                     value: p.linkValue,
                     x: (p.sourceNode.x + p.targetNode.x) / 2,
-                    y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - 10 // 20 margin
+                    y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2))
                   }]
         })
         .textAlign("center")
         .textBaseline("bottom")
         .textStyle('#fff')
         .font(fontsize+"px sans-serif")
-        .visible(function(p){maxy = Math.max(maxy,p.y);return this.proto.active() == this.index})
+        .visible(function(p){return this.proto.active() == this.index})
         .text(function(p){ return p.group});//+' '+pv.Format.date('%M:%S')(new Date(p.value*1000))});
 
-    vis.add(pv.Rule)
+
+    g.add(pv.Rule)
       .data(ticks)
       .left(x)
-      .bottom(-10)
+      .bottom(-ruleHeight/2)
       .height(8)
       .strokeStyle("#444")
       .anchor('bottom').add(pv.Label)
@@ -121,11 +127,26 @@ bs.Arc = function(options){
         .textAlign(function(){return this.index==0 ? 'left' : this.index==ticks.length-1 ? 'right' : 'center'})
         .text(function(d){return formatedHour(d,this.index)});
 
-        height = maxy;
-        d3.select('#vis').style('height', maxy+'px');
-        d3.select('#vis svg').attr('height', maxy);
 
     vis.render();
+
+    //console.log(maxsec, maxsec/60, maxsec/120);
+    // determine max arc height, accounting for its stroke
+    d3.selectAll('svg path').forEach(
+     function(e){
+       e.forEach(function(d){
+         maxy = Math.max(maxy, d.getBBox().height+(d.getAttribute('stroke-width')/2));
+       })
+     })
+
+    // adjust position and height
+    d3.select('svg g')
+      .attr("transform", "translate(0," + -(height-maxy) + ")")
+
+    height = maxy+ruleHeight;
+    d3.select('#vis').style('height', height+'px');
+    d3.select('#vis svg').attr('height', height);
+
 
     function formatedHour(d,i){
       if(format(new Date(d))==12 && i==0){
