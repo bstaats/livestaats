@@ -11,7 +11,7 @@ bs.Arc = function(options){
       height      = el.property('clientHeight'),
       lineWidth   = 50,
       graph       = {},
-      maxsec      = 0,
+      secondsArray= [],
       fontsize    = 18,
       labelHeight = 20,
       ruleHeight  = 20,
@@ -58,19 +58,18 @@ bs.Arc = function(options){
       return values.map(function(v,i){
         // if there is a second occurance and together is longer secondsFilter
         if(values[i+1] && (v[1]+values[i+1][1]) > secFilter){
-          var seconds = v[1]+values[i+1][1];
-          maxsec = Math.max(maxsec, seconds);
-          return {source:datetimes.indexOf(v[0]),
-                  target:datetimes.indexOf(values[i+1][0]),
+          secondsArray.push(v[1]);
+          return {source: datetimes.indexOf(v[0]),
+                  target: datetimes.indexOf(values[i+1][0]),
                   group: v[3],
-                  value:seconds}
+                  value: v[1]+values[i+1][1]}
         }else{
           return []
         }
       });
     })));
 
-    var y = d3.scale.linear().domain([1,maxsec]).range([1,lineWidth]);
+    var y = d3.scale.linear().domain([1,d3.max(secondsArray)]).range([1,lineWidth]);
 
     var vis = new pv.Panel()
         .canvas(el.attr('id'))
@@ -82,7 +81,8 @@ bs.Arc = function(options){
 
     var layout = g.add(pv.Layout.Arc)
         .nodes(graph.nodes)
-        .links(graph.links);
+        .links(graph.links)
+        .overflow('hidden');
 
 
     layout.node.add(pv.Dot)
@@ -130,7 +130,8 @@ bs.Arc = function(options){
 
     vis.render();
 
-    //console.log(maxsec, maxsec/60, maxsec/120);
+    $('#support .total .value').html(totalHours(pv.sum(secondsArray)))
+
     // determine max arc height, accounting for its stroke
     d3.selectAll('svg path').forEach(
      function(e){
@@ -141,12 +142,24 @@ bs.Arc = function(options){
 
     // adjust position and height
     d3.select('svg g')
-      .attr("transform", "translate(0," + -(height-maxy) + ")")
+      .attr("transform", "translate(0," + -(height-maxy-labelHeight) + ")")
 
-    height = maxy+ruleHeight;
+    height = maxy+ruleHeight+labelHeight;
     d3.select('#vis').style('height', height+'px');
     d3.select('#vis svg').attr('height', height);
 
+
+    function totalHours(seconds){
+      var d = new Date(interval[0].getFullYear(),interval[0].getMonth(),interval[0].getDay());
+      d.setSeconds(seconds);
+      var h = d.getHours();
+      var m = d.getMinutes();
+      if(h>0){
+        return h+'hrs '+m+'mins';
+      }else{
+        return m+'mins';
+      }
+    }
 
     function formatedHour(d,i){
       if(format(new Date(d))==12 && i==0){
