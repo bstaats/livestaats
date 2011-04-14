@@ -64,7 +64,6 @@
 
   <script type="text/javascript" charset="utf-8">
     var LINKS    = ['http://www.flickr.com/photos/brianstaats/4441493348/in/set-72157612034810346','http://www.linkedin.com/in/brianstaats','https://profiles.google.com/brian.staats','http://twitter.com/Brianstaats'];
-var DATA;
     $(document).ready(function() {
       $('#icons li').each(function(i,d){
         $(d).click(function(){window.location = LINKS[i];});
@@ -74,13 +73,14 @@ var DATA;
       if(document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")){
         $('#container').append($('#support'));
 
-        d3.json('tests/data/dat.json', function(json){
+        d3.json('data', function(json){
 
           // test
+/*
           json.interval = [new Date("2011-04-13"), new Date('2011-04-14')];
           json.data = {};
-          json.data.rows = DATA = json.rows;
-
+          json.data.rows = json.rows;
+*/
           // end test
 
           if(json.data){

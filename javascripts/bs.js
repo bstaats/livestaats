@@ -7,9 +7,10 @@ bs.Arc = function(options){
       hours       = (interval[1].getTime() - interval[0].getTime()) / (1000*60*60),
       secFilter   = options.secFilter || 300,
       color       = pv.Colors.category19(),
+      active      = '',
       width       = el.property('clientWidth'),
       height      = el.property('clientHeight'),
-      lineWidth   = 50,
+      lineWidth   = 35,
       graph       = {},
       secondsArray= [],
       fontsize    = 18,
@@ -90,28 +91,36 @@ bs.Arc = function(options){
         n.x = x(n[0]);
         return n;
         })
-      }).fillStyle(null).strokeStyle(null);
+      }).visible(false);
 
     layout.link.add(pv.Line)
       .def("active", -1)
       .strokeStyle(function(d,l){return color(l.group).alpha(0.5)})
       .lineWidth(function(n,l){return y(l.linkValue)})
-      .event("mouseover", function(){return  this.active(this.index).parent})
-      .event("mouseout", function(){return  this.active(-1).parent})
+      .event("mouseover", function(d){active=d[3];return  this.active(this.index).parent})
+      .event("mouseout", function(){active='';return  this.active(-1).parent})
+      .visible(function(d){return active=='' || d[3]==active})
       .add(pv.Label)
         .data(function(p){
           return [{ group: p.group,
                     value: p.linkValue,
                     x: (p.sourceNode.x + p.targetNode.x) / 2,
-                    y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2))
+                    y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - fontsize //since middle aligned
                   }]
         })
-        .textAlign("center")
-        .textBaseline("bottom")
+        .textAlign("right")
+        .textBaseline("middle")
         .textStyle('#fff')
         .font(fontsize+"px sans-serif")
         .visible(function(p){return this.proto.active() == this.index})
-        .text(function(p){ return p.group});//+' '+pv.Format.date('%M:%S')(new Date(p.value*1000))});
+        .text(function(p){ return p.group})
+        .anchor('right').add(pv.Label)
+          .textBaseline("middle")
+          .font(fontsize+"px sans-serif")
+          .textAlign("left")
+          .textMargin(8)
+          .textStyle('#444')
+          .text(function(p){return totalTime(p.value)});
 
 
     g.add(pv.Rule)
@@ -130,7 +139,7 @@ bs.Arc = function(options){
 
     vis.render();
 
-    $('#support .total .value').html(totalHours(pv.sum(secondsArray)))
+    $('#support .total .value').html(totalTime(pv.sum(secondsArray)))
 
     // determine max arc height, accounting for its stroke
     d3.selectAll('svg path').forEach(
@@ -142,20 +151,20 @@ bs.Arc = function(options){
 
     // adjust position and height
     d3.select('svg g')
-      .attr("transform", "translate(0," + -(height-maxy-labelHeight) + ")")
+      .attr("transform", "translate(0," + -(height-maxy-(fontsize*1.5)) + ")")
 
-    height = maxy+ruleHeight+labelHeight;
+    height = maxy+ruleHeight+(fontsize*1.5);
     d3.select('#vis').style('height', height+'px');
     d3.select('#vis svg').attr('height', height);
 
 
-    function totalHours(seconds){
+    function totalTime(seconds){
       var d = new Date(interval[0].getFullYear(),interval[0].getMonth(),interval[0].getDay());
       d.setSeconds(seconds);
       var h = d.getHours();
       var m = d.getMinutes();
       if(h>0){
-        return h+'hrs '+m+'mins';
+        return m>0 ? h+'hrs '+m+'mins' : h+'hrs';
       }else{
         return m+'mins';
       }
