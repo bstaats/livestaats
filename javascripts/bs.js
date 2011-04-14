@@ -10,7 +10,9 @@ bs.Arc = function(options){
       width     = el.property('clientWidth'),
       height    = el.property('clientHeight'),
       graph     = {},
-      maxy      = -Infinity,
+      maxsec    = 0,
+      fontsize  = 18,
+      maxy      = fontsize,
       keys      = [];
 
 
@@ -37,12 +39,13 @@ bs.Arc = function(options){
         format    = pv.Format.date("%I");
 
     if(hours>24){
-      $('#support span').html('The week of '+pv.Format.date('%b %d %Y')(new Date()));
+      $('#support .info .value').html(pv.Format.date('%b %d %Y')(new Date()));
+      $('#support .info .label').html('This Week');
       format    = pv.Format.date("%a %d %b");
       ticks     = x.ticks(12);
       secFilter = 600;
     }else{
-      $('#support span').html('Today '+pv.Format.date('%b %d %Y')(new Date()));
+      $('#support .info .value').html(pv.Format.date('%b %d %Y')(new Date()));
     }
 
     var linknest  = d3.nest()
@@ -54,7 +57,7 @@ bs.Arc = function(options){
         // if there is a second occurance and together is longer secondsFilter
         if(values[i+1] && (v[1]+values[i+1][1]) > secFilter){
           var seconds = v[1]+values[i+1][1];
-          maxy = Math.max(maxy, seconds);
+          maxsec = Math.max(maxsec, seconds);
           return {source:datetimes.indexOf(v[0]),
                   target:datetimes.indexOf(values[i+1][0]),
                   group: v[3],
@@ -65,7 +68,7 @@ bs.Arc = function(options){
       });
     })));
 
-    var y = d3.scale.linear().domain([1,maxy]).range([2,height/10]);
+    var y = d3.scale.linear().domain([1,maxsec]).range([2,height/10]);
 
     var vis = new pv.Panel()
         .canvas(el.attr('id'))
@@ -91,18 +94,19 @@ bs.Arc = function(options){
       .event("mouseover", function(){return  this.active(this.index).parent})
       .event("mouseout", function(){return  this.active(-1).parent})
       .add(pv.Label)
-        .data(function(p){return [{
-          group: p.group,
-          value: p.linkValue,
-          x: (p.sourceNode.x + p.targetNode.x) / 2,
-          y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - 20 // 20 margin
-        }]})
+        .data(function(p){
+          return [{ group: p.group,
+                    value: p.linkValue,
+                    x: (p.sourceNode.x + p.targetNode.x) / 2,
+                    y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - 10 // 20 margin
+                  }]
+        })
         .textAlign("center")
         .textBaseline("bottom")
         .textStyle('#fff')
-        .font("18px sans-serif")
-        .visible(function(){return this.proto.active() == this.index})
-        .text(function(p){return p.group});//+' '+pv.Format.date('%M:%S')(new Date(p.value*1000))});
+        .font(fontsize+"px sans-serif")
+        .visible(function(p){maxy = Math.max(maxy,p.y);return this.proto.active() == this.index})
+        .text(function(p){ return p.group});//+' '+pv.Format.date('%M:%S')(new Date(p.value*1000))});
 
     vis.add(pv.Rule)
       .data(ticks)
@@ -116,6 +120,10 @@ bs.Arc = function(options){
         .textMargin(0)
         .textAlign(function(){return this.index==0 ? 'left' : this.index==ticks.length-1 ? 'right' : 'center'})
         .text(function(d){return formatedHour(d,this.index)});
+
+        height = maxy;
+        d3.select('#vis').style('height', maxy+'px');
+        d3.select('#vis svg').attr('height', maxy);
 
     vis.render();
 
