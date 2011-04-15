@@ -83,6 +83,7 @@ div#container{
 div#header{
   width:400px;
   color: $dwhite;
+  @include float-left;
 
   p.greet{
     font-size: $size2;
@@ -122,11 +123,9 @@ ul#icons {
   padding:      0;
   margin:       0;
   list-style:   none;
-  position:     absolute;
-  left:         500px;
-  top:          25px;
+  @include      float-right;
   font-size:    $size2;
-
+  margin-right: 70px;
   p.aboutme{
     height:21px;
     margin-bottom: 2px;
@@ -135,7 +134,7 @@ ul#icons {
   li {
     height:$sprite-default-size;
     width: $sprite-default-size;
-    margin-right: $sprite-default-size * 2;
+    margin-right: $sprite-default-size;
     display: inline-block;
 
     &:hover{
@@ -169,11 +168,14 @@ ul#icons {
       @include sprite-img('icons.png', 3,2);
     };
   }
-  li.i4 > div {
-    @include sprite-img('icons.png', 4);
-    &:hover{
-      @include sprite-img('icons.png', 4,2);
-    };
+  li.i4{
+    margin-right: 0;
+    div {
+      @include sprite-img('icons.png', 4);
+      &:hover{
+        @include sprite-img('icons.png', 4,2);
+      };
+    }
   }
 
 } //ul#icons
@@ -195,14 +197,14 @@ div#vis {
   clear:        both;
 
   p.title{
-    font-size:  $size1;
+    font-size:  $size2;
     color:      $lgrey;
     @include    float-left;
+    line-height:0.7em;
   }
 
   ul{
-    position:     absolute;
-    left:         500px;
+    @include      float-right;
     margin:       0;
     padding:      0;
     list-style:   none;
@@ -210,7 +212,7 @@ div#vis {
 
     li{
       display:      inline-block;
-      margin-right: 50px;
+      margin-right: 36px;
       width:        100px;
       p{
         &.value{
@@ -221,6 +223,9 @@ div#vis {
           font-size:  $size3;
         }
       }
+    }
+    li.total{
+      margin-right: 70px;
     }
   }
 }
