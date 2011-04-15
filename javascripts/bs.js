@@ -55,6 +55,11 @@ bs.Arc = function(options){
       .key(function(d){ return d[3]; })
       .map(json);
 
+  // adjust secfilter if data volume is low
+  var linkedGroups = 0
+  d3.values(linknest).forEach(function(l){if(l.length>1) linkedGroups++;})
+  if(linkedGroups<3) secFilter=0;
+
   graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
       return values.map(function(v,i){
         if(!secondsArray[v[3]]) secondsArray[v[3]] = [];
@@ -71,92 +76,99 @@ bs.Arc = function(options){
       });
     })));
 
-    var y = d3.scale.linear().domain([1,d3.max( d3.merge(d3.values(secondsArray)) )]).range([1,lineWidth]);
+    if(graph.links.length>0){
 
-    var vis = new pv.Panel()
-        .canvas(el.attr('id'))
-        .width(width)
-        .height(height)
-        .bottom(ruleHeight);
+      var y = d3.scale.linear().domain([1,d3.max( d3.merge(d3.values(secondsArray)) )]).range([1,lineWidth]);
 
-    var g = vis.add(pv.Panel);
+      var vis = new pv.Panel()
+          .canvas(el.attr('id'))
+          .width(width)
+          .height(height)
+          .bottom(ruleHeight);
 
-    var layout = g.add(pv.Layout.Arc)
-        .nodes(graph.nodes)
-        .links(graph.links)
-        .overflow('hidden');
+      var g = vis.add(pv.Panel);
+
+      var layout = g.add(pv.Layout.Arc)
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .overflow('hidden');
 
 
-    layout.node.add(pv.Dot)
-      .data(function(){return layout.nodes().map(function(n){
-        n.x = x(n[0]);
-        return n;
-        })
-      }).visible(false);
+      layout.node.add(pv.Dot)
+        .data(function(){return layout.nodes().map(function(n){
+          n.x = x(n[0]);
+          return n;
+          })
+        }).visible(false);
 
-    layout.link.add(pv.Line)
-      .def("active", -1)
-      .strokeStyle(function(d,l){return color(l.group).alpha(0.5)})
-      .lineWidth(function(n,l){return y(l.linkValue)})
-      .event("mouseover", function(d){active=d[3];return  this.active(this.index).parent})
-      .event("mouseout", function(){active='';return  this.active(-1).parent})
-      .visible(function(d){return active=='' || d[3]==active})
-      .add(pv.Label)
-        .data(function(p){
-          return [{ group: p.group,
-                    value: p.linkValue,
-                    x: (p.sourceNode.x + p.targetNode.x) / 2,
-                    y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - fontsize //since middle aligned
-                  }]
-        })
-        .textAlign("right")
-        .textBaseline("middle")
-        .textStyle('#fff')
-        .font(fontsize+"px sans-serif")
-        .visible(function(p){return this.proto.active() == this.index})
-        .text(function(p){ return p.group})
-        .anchor('right').add(pv.Label)
+      layout.link.add(pv.Line)
+        .def("active", -1)
+        .strokeStyle(function(d,l){return color(l.group).alpha(0.5)})
+        .lineWidth(function(n,l){return y(l.linkValue)})
+        .event("mouseover", function(d){active=d[3];return  this.active(this.index).parent})
+        .event("mouseout", function(){active='';return  this.active(-1).parent})
+        .visible(function(d){return active=='' || d[3]==active})
+        .add(pv.Label)
+          .data(function(p){
+            return [{ group: p.group,
+                      value: p.linkValue,
+                      x: (p.sourceNode.x + p.targetNode.x) / 2,
+                      y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - fontsize //since middle aligned
+                    }]
+          })
+          .textAlign("right")
           .textBaseline("middle")
+          .textStyle('#fff')
           .font(fontsize+"px sans-serif")
-          .textAlign("left")
-          .textMargin(8)
+          .visible(function(p){return this.proto.active() == this.index})
+          .text(function(p){ return p.group})
+          .anchor('right').add(pv.Label)
+            .textBaseline("middle")
+            .font(fontsize+"px sans-serif")
+            .textAlign("left")
+            .textMargin(8)
+            .textStyle('#444')
+            .text(function(p){return totalTimeFor(p.group)});
+
+
+      g.add(pv.Rule)
+        .data(ticks)
+        .left(x)
+        .bottom(-ruleHeight/2)
+        .height(8)
+        .strokeStyle("#444")
+        .anchor('bottom').add(pv.Label)
           .textStyle('#444')
-          .text(function(p){return totalTimeFor(p.group)});
+          .textBaseline("top")
+          .textMargin(0)
+          .textAlign(function(){return this.index==0 ? 'left' : this.index==ticks.length-1 ? 'right' : 'center'})
+          .text(function(d){return formatedHour(d,this.index)});
 
 
-    g.add(pv.Rule)
-      .data(ticks)
-      .left(x)
-      .bottom(-ruleHeight/2)
-      .height(8)
-      .strokeStyle("#444")
-      .anchor('bottom').add(pv.Label)
-        .textStyle('#444')
-        .textBaseline("top")
-        .textMargin(0)
-        .textAlign(function(){return this.index==0 ? 'left' : this.index==ticks.length-1 ? 'right' : 'center'})
-        .text(function(d){return formatedHour(d,this.index)});
+      vis.render();
 
+      $('#support .total .value').html(totalTime(pv.sum( d3.merge(d3.values(secondsArray)) )))
 
-    vis.render();
-
-    $('#support .total .value').html(totalTime(pv.sum( d3.merge(d3.values(secondsArray)) )))
-
-    // determine max arc height, accounting for its stroke
-    d3.selectAll('svg path').forEach(
-     function(e){
-       e.forEach(function(d){
-         maxy = Math.max(maxy, d.getBBox().height+(d.getAttribute('stroke-width')/2));
+      // determine max arc height, accounting for its stroke
+      d3.selectAll('svg path').forEach(
+       function(e){
+         e.forEach(function(d){
+           maxy = Math.max(maxy, d.getBBox().height+(d.getAttribute('stroke-width')/2));
+         })
        })
-     })
 
-    // adjust position and height
-    d3.select('svg g')
-      .attr("transform", "translate(0," + -(height-maxy-(fontsize*1.5)) + ")")
+      // adjust position and height
+      d3.select('svg g')
+        .attr("transform", "translate(0," + -(height-maxy-(fontsize*1.5)) + ")")
 
-    height = maxy+ruleHeight+(fontsize*1.5);
-    d3.select('#vis').style('height', height+'px');
-    d3.select('#vis svg').attr('height', height);
+      height = maxy+ruleHeight+(fontsize*1.5);
+      d3.select('#vis').style('height', height+'px');
+      d3.select('#vis svg').attr('height', height);
+
+    }else{
+      $('#vis').prepend($('#nodata'));
+      $('#support').remove();
+    }
 
 
     function totalTimeFor(group){

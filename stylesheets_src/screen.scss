@@ -80,6 +80,10 @@ div#container{
   position:         relative;
 }
 
+span.im{
+  font-style: italic;
+}
+
 div#header{
   width:400px;
   color: $dwhite;
@@ -90,9 +94,6 @@ div#header{
     margin-bottom: 2px;
     span.hello{
       text-transform: uppercase;
-    }
-    span.im{
-      font-style: italic;
     }
   }
 
@@ -126,6 +127,7 @@ ul#icons {
   @include      float-right;
   font-size:    $size2;
   margin-right: 70px;
+
   p.aboutme{
     height:21px;
     margin-bottom: 2px;
@@ -185,9 +187,9 @@ div#vis {
   width:    $blueprint-container-size;
   height:   $blueprint-container-size / 2;
   margin:   50px 0 10px 0;
+
   img{
     margin-top:   100px;
-    margin-left:  $blueprint-container-size/2;
   }
 
 } //div#vis
@@ -231,7 +233,6 @@ div#vis {
 }
 
 #nosupport{
-  margin-top:100px;
   p{
     color:      $lgrey;
   }
@@ -251,7 +252,6 @@ div#vis {
 }
 
 #nodata{
-  margin-top:100px;
   p.opss{
     font-size:  $size1;
   }

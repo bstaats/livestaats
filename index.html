@@ -34,6 +34,7 @@
       <li class='i3'><div></div><p>Google Profile</p></li>
       <li class='i4'><div></div><p>My Tweets</p></li>
     </ul>
+    <div class="clear"></div>
     <div id="vis"><img src="images/loader.gif" width="64" height="64" alt="Loader"></div>
   </div>
   <div style='display:none;'>
@@ -42,10 +43,15 @@
       <p class='bad'>Looks like your browser <span class='ital'>does NOT</span> support awesome <span class='highlight'>data visualizations</span></p>
       <p class='help'>Use the latest <a href='http://www.google.com/chrome'>Chrome</a>, <a href='www.getfirefox.com'>Firefox</a>, or <a href='http://www.apple.com/safari/download'>Safari</a> to see what you are missing</p>
     </div>
-    <div id='nodata'>
+    <div id='error'>
       <p class='opss'>Oppss<span class='bang'>&#33</span></p>
       <p class='what'>Looks like there was a problem retrieving data. <span class='highlight'>Stupid internets</span></p>
       <p class='comeback ital'>Come back later</p>
+    </div>
+    <div id='nodata'>
+      <p class='opss'><span class='im'>I&#8217m</span> Caught<span class='bang'>&#33</span></p>
+      <p class='what'>You visited before I logged any work. <span class='highlight'>Slacker<span class='bang'>&#33</span></span></p>
+      <p class='comeback ital'>Come back later to see beautiful work patterns</p>
     </div>
     <div id="support">
       <p class='title'>Work Patterns</p>
@@ -90,7 +96,7 @@
               interval:json.interval
             });
           }else{
-            $('#vis').prepend($('#nodata'));
+            $('#vis').prepend($('#error'));
             $('#support').remove();
           }
           $('#vis img').remove();
