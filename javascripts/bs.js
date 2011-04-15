@@ -12,7 +12,7 @@ bs.Arc = function(options){
       height      = el.property('clientHeight'),
       lineWidth   = 15,
       graph       = {},
-      secondsArray= [],
+      secondsArray= {},
       fontsize    = 18,
       labelHeight = 20,
       ruleHeight  = 20,
@@ -57,9 +57,10 @@ bs.Arc = function(options){
 
   graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
       return values.map(function(v,i){
+        if(!secondsArray[v[3]]) secondsArray[v[3]] = [];
+        secondsArray[v[3]].push(v[1]);
         // if there is a second occurance and together is longer secondsFilter
         if(values[i+1] && (v[1]+values[i+1][1]) > secFilter){
-          secondsArray.push(v[1]);
           return {source: datetimes.indexOf(v[0]),
                   target: datetimes.indexOf(values[i+1][0]),
                   group: v[3],
@@ -70,7 +71,7 @@ bs.Arc = function(options){
       });
     })));
 
-    var y = d3.scale.linear().domain([1,d3.max(secondsArray)]).range([1,lineWidth]);
+    var y = d3.scale.linear().domain([1,d3.max( d3.merge(d3.values(secondsArray)) )]).range([1,lineWidth]);
 
     var vis = new pv.Panel()
         .canvas(el.attr('id'))
@@ -120,7 +121,7 @@ bs.Arc = function(options){
           .textAlign("left")
           .textMargin(8)
           .textStyle('#444')
-          .text(function(p){return totalTime(p.value)});
+          .text(function(p){return totalTimeFor(p.group)});
 
 
     g.add(pv.Rule)
@@ -139,7 +140,7 @@ bs.Arc = function(options){
 
     vis.render();
 
-    $('#support .total .value').html(totalTime(pv.sum(secondsArray)))
+    $('#support .total .value').html(totalTime(pv.sum( d3.merge(d3.values(secondsArray)) )))
 
     // determine max arc height, accounting for its stroke
     d3.selectAll('svg path').forEach(
@@ -158,11 +159,16 @@ bs.Arc = function(options){
     d3.select('#vis svg').attr('height', height);
 
 
+    function totalTimeFor(group){
+      return totalTime( pv.sum(secondsArray[group]) );
+    }
+
     function totalTime(seconds){
       var d = new Date(interval[0].getFullYear(),interval[0].getMonth(),interval[0].getDay());
-      d.setSeconds(seconds);
+      d.setSeconds( seconds );
       var h = d.getHours();
       var m = d.getMinutes();
+
       if(h>0){
         return m>0 ? h+'hrs '+m+'mins' : h+'hrs';
       }else{
