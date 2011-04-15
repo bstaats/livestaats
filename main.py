@@ -15,7 +15,8 @@
 # limitations under the License.
 #
 import os
-import datetime
+from datetime import datetime,timedelta
+import logging
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -23,7 +24,6 @@ from google.appengine.ext.webapp import template
 
 from dataservices.DataFetcher import DataFetcher
 from simplejson import dumps, loads
-#from utils import getTimezone, UTC
 from tz_helper import timezone
 
 class DataHandler(webapp.RequestHandler):
@@ -31,11 +31,11 @@ class DataHandler(webapp.RequestHandler):
   def get(self):
     #utc_dt = datetime(2002, 10, 27, 6, 0, 0, tzinfo=utc)
     #loc_dt = utc_dt.astimezone(eastern)
-    
-    now = datetime.datetime.now(timezone('UTC')).astimezone(timezone('US/Eastern'))
 
-    interval = [now.strftime('%Y-%m-%d'),
-                (now + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')]
+    now = datetime.now(timezone('UTC')).astimezone(timezone('US/Eastern'))
+
+    interval = [now.strftime('%Y/%m/%d'),
+                (now + timedelta(days = 1)).strftime('%Y/%m/%d')]
 
     params   = {
                'pv': 'interval',
@@ -49,13 +49,17 @@ class DataHandler(webapp.RequestHandler):
     data = df.rescuetime(params)
 
     if data and not data['rows']:
-      interval[0] = (now - datetime.timedelta(days = 6)).strftime('%Y-%m-%d')
+      interval[0] = (now - timedelta(days = 6)).strftime('%Y/%m/%d')
 
       params['rs'] = 'hours'
       params['rb'] = interval[0]
       params['re'] = interval[1]
 
       data = df.rescuetime(params)
+
+    # need to format date so javascript Date() can parse it correctly (happens in Safari)
+    for d in data['rows']:
+      d[0] = datetime.strptime(d[0],'%Y-%m-%dT%H:%M:%S').strftime('%Y/%m/%d %H:%M:%S')
 
     self.response.out.write(dumps({'data':data,'interval':interval}))
 
