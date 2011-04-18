@@ -80,15 +80,6 @@
         $('#container').append($('#support'));
 
         d3.json('data', function(json){
-
-          // test
-/*
-          json.interval = [new Date("2011-04-13"), new Date('2011-04-14')];
-          json.data = {};
-          json.data.rows = json.rows;
-*/
-          // end test
-
           if(json.data){
             new bs.Arc({
               el: d3.select('#vis'),
