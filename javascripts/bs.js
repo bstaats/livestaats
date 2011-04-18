@@ -113,7 +113,7 @@ bs.Arc = function(options){
             return [{ group: p.group,
                       value: p.linkValue,
                       x: (p.sourceNode.x + p.targetNode.x) / 2,
-                      y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - fontsize //since middle aligned
+                      y: ((p.sourceNode.x - p.targetNode.x) / 2) + p.sourceNode.y - (y(p.linkValue/2)) - (fontsize/1.5) //since middle aligned
                     }]
           })
           .textAlign("right")
@@ -158,12 +158,14 @@ bs.Arc = function(options){
        })
 
       // adjust position and height
-      d3.select('svg g')
-        .attr("transform", "translate(0," + -(height-maxy-(fontsize*1.5)) + ")")
 
-      height = maxy+ruleHeight+(fontsize*1.5);
-      d3.select('#vis').style('height', height+'px');
-      d3.select('#vis svg').attr('height', height);
+      d3.select('svg g')
+        .attr("transform", "translate(0," + -(height-maxy-(fontsize*2)) + ")");
+
+      var newheight = maxy+ruleHeight+(fontsize*2);
+      d3.select('svg rect').attr('height',newheight).attr('y',(height-maxy-(fontsize*2)))
+      d3.select('#vis').style('height', newheight+'px');
+      d3.select('#vis svg').attr('height', newheight);
 
     }else{
       $('#vis').prepend($('#nodata'));
