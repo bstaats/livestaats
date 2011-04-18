@@ -185,12 +185,9 @@ ul#icons {
 
 div#vis {
   width:    $blueprint-container-size;
-  height:   $blueprint-container-size / 2;
+  height:   50px;
   margin:   50px 0 10px 0;
-
-  img{
-    margin-top:   100px;
-  }
+  text-align:center;
 
 } //div#vis
 
