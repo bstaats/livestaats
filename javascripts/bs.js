@@ -58,7 +58,7 @@ bs.Arc = function(options){
   // adjust secfilter if data volume is low
   var linkedGroups = 0
   d3.values(linknest).forEach(function(l){if(l.length>1) linkedGroups++;})
-  if(linkedGroups<3) secFilter=0;
+  if(linkedGroups<6) secFilter=0;
 
   graph.links = d3.merge(d3.merge(d3.values(linknest).map(function(values){
       return values.map(function(v,i){
