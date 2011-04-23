@@ -26,42 +26,34 @@ from dataservices.DataFetcher import DataFetcher
 from simplejson import dumps, loads
 from tz_helper import timezone
 
+
 class DataHandler(webapp.RequestHandler):
-  """docstring for DataHandler"""
   def get(self):
-    #utc_dt = datetime(2002, 10, 27, 6, 0, 0, tzinfo=utc)
-    #loc_dt = utc_dt.astimezone(eastern)
+    days = int(self.request.get('days'))
+    if not days:
+      days = 0
 
-    now = datetime.now(timezone('UTC')).astimezone(timezone('US/Eastern'))
+    unit = 'hour'
+    if days>6:
+      unit = 'day'
 
-    interval = [now.strftime('%Y/%m/%d'),
-                (now + timedelta(days = 1)).strftime('%Y/%m/%d')]
-
+    now      = datetime.now(timezone('UTC')).astimezone(timezone('US/Eastern'))
+    interval = [(now - timedelta(days = days)).replace(hour=0,minute=0,second=0), now.replace(hour=23,minute=0,second=0)]
     params   = {
                'pv': 'interval',
-               'rs': 'hour',
-               'rb': interval[0],
-               're': interval[1],
+               'rs': unit,
+               'rb': interval[0].strftime('%Y/%m/%d'),
+               're': (interval[1] + timedelta(days = 1)).strftime('%Y/%m/%d'),
                'rk': 'category'
                }
 
-    df   = DataFetcher()
-    data = df.rescuetime(params)
+    df       = DataFetcher()
+    data     = df.rescuetime(params)
 
-    if data and not data['rows']:
-      interval[0] = (now - timedelta(days = 6)).strftime('%Y/%m/%d')
-
-      params['rs'] = 'hours'
-      params['rb'] = interval[0]
-      params['re'] = interval[1]
-
-      data = df.rescuetime(params)
-
-    # need to format date so javascript Date() can parse it correctly (happens in Safari)
     for d in data['rows']:
       d[0] = datetime.strptime(d[0],'%Y-%m-%dT%H:%M:%S').strftime('%Y/%m/%d %H:%M:%S')
 
-    self.response.out.write(dumps({'data':data,'interval':interval}))
+    self.response.out.write(dumps({'data':data,'interval':[i.strftime('%Y/%m/%d %H:%M:%S') for i in interval]}))
 
 
 class MainHandler(webapp.RequestHandler):
@@ -73,7 +65,7 @@ class MainHandler(webapp.RequestHandler):
 
 def main():
   application = webapp.WSGIApplication([('/', MainHandler),
-                                        ('/data', DataHandler)
+                                        ('/data',  DataHandler)
                                        ],
                                        debug=True)
   util.run_wsgi_app(application)

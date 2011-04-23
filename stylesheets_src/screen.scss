@@ -50,14 +50,6 @@ body.bp{
     font-weight:bolder;
   }
 
-  .ital{
-    font-style: italic;
-  }
-
-  .bang{
-    font-size:75%;
-  }
-
   a,a:active,a:visited{
     color: $dwhite;
     text-decoration:none;
@@ -68,8 +60,16 @@ body.bp{
       font-weight:bolder;
     };
   }
-
 }
+
+.ital{
+  font-style: italic;
+}
+
+.bang{
+  font-size:75%;
+}
+
 
 
 div#container{
@@ -183,17 +183,17 @@ ul#icons {
 } //ul#icons
 
 
-div#vis {
+div.vis{
   width:    $blueprint-container-size;
   height:   50px;
-  margin:   50px 0 10px 0;
+  margin:   50px 0 50px 0;
   text-align:center;
-
 } //div#vis
 
-#support{
+.description{
   margin-top:   5px;
   clear:        both;
+  text-align:   left;
 
   p.title{
     font-size:  $size2;
@@ -211,8 +211,7 @@ div#vis {
 
     li{
       display:      inline-block;
-      margin-right: 36px;
-      width:        100px;
+      width:        150px;
       p{
         &.value{
           font-size: $size2;
@@ -223,13 +222,12 @@ div#vis {
         }
       }
     }
-    li.total{
-      margin-right: 70px;
-    }
   }
 }
 
 #nosupport{
+  text-align:left;
+  margin-top:50px;
   p{
     color:      $lgrey;
   }
@@ -248,9 +246,14 @@ div#vis {
   }
 }
 
-#nodata{
-  p.opss{
+#nodata, .myerror{
+  text-align:left;
+  .opss, .bang{
     font-size:  $size1;
+  }
+  .why{
+    margin-left:50px;
+    font-size:  $size2;
   }
   p.what{
     color:      $lgrey;

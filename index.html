@@ -35,16 +35,20 @@
       <li class='i4'><div></div><p>My Tweets</p></li>
     </ul>
     <div class="clear"></div>
-    <div id="vis"><img src="images/loader.gif" width="64" height="64" alt="Loader"></div>
+    <div id="visualizations">
+      <div id='vis0' class='vis'><img src="images/loader.gif" width="64" height="64" alt="Loader"></div>
+      <div id='vis6' class='vis'><img src="images/loader.gif" width="64" height="64" alt="Loader"></div>
+      <div id='vis30' class='vis'><img src="images/loader.gif" width="64" height="64" alt="Loader"></div>
+    </div>
   </div>
-  <div style='display:none;'>
+  <div id='templates' style='display:none;'>
     <div id='nosupport'>
       <p class='wow'>Yikes<span class='bang'>&#33</span></p>
       <p class='bad'>Looks like your browser <span class='ital'>does NOT</span> support awesome <span class='highlight'>data visualizations</span></p>
       <p class='help'>Use the latest <a href='http://www.google.com/chrome'>Chrome</a>, <a href='www.getfirefox.com'>Firefox</a>, or <a href='http://www.apple.com/safari/download'>Safari</a> to see what you are missing</p>
     </div>
-    <div id='error'>
-      <p class='opss'>Oppss<span class='bang'>&#33</span></p>
+    <div class='myerror'>
+      <p><span class='opss'>Oppss</span><span class='bang'>&#33</span><span class='why highlight'></span></p>
       <p class='what'>Looks like there was a problem retrieving data. <span class='highlight'>Stupid internets</span></p>
       <p class='comeback ital'>Come back later</p>
     </div>
@@ -53,11 +57,11 @@
       <p class='what'>You visited before I logged any work. <span class='highlight'>Slacker<span class='bang'>&#33</span></span></p>
       <p class='comeback ital'>Come back later to see beautiful work patterns</p>
     </div>
-    <div id="support">
-      <p class='title'>Work Patterns</p>
+    <div class='description'>
+      <p class='title'></p>
       <ul>
-        <li class='info'><p class='value'></p><p class='label'>Today</p></li>
-        <li class='total'><p class='value'>12hrs</p><p class='label'>Total</p></li>
+        <li class='info'><p class='value'></p><p class='label'></p></li>
+        <li class='total'><p class='value'></p><p class='label'>Total</p></li>
       </ul>
     </div>
   </div>
@@ -65,7 +69,6 @@
   <script src="javascripts/jquery-1.5.1.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="javascripts/protovis-r3.3.js" type="text/javascript" charset="utf-8"></script>
   <script src="javascripts/d3.min.js" type="text/javascript" charset="utf-8"></script>
-  <!--<script src="https://github.com/mbostock/d3/raw/v1.9.1/d3.js" type="text/javascript" charset="utf-8"></script>-->
   <script src="javascripts/bs.js" type="text/javascript" charset="utf-8"></script>
 
   <script type="text/javascript" charset="utf-8">
@@ -77,25 +80,11 @@
       });
 
       if(document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")){
-        $('#container').append($('#support'));
-
-        d3.json('data', function(json){
-          if(json.data){
-            new bs.Arc({
-              el: d3.select('#vis'),
-              json:json.data.rows,
-              interval:json.interval
-            });
-          }else{
-            $('#vis').prepend($('#error'));
-            $('#support').remove();
-          }
-          $('#vis img').remove();
-        });
-
+        bs.render(0);
+        bs.render(6);
+        bs.render(30);
       }else{
-        $('#vis').append($('#nosupport'));
-        $('#vis img').remove();
+        $('#visualizations').empty().append($('#nosupport'));
       }
     });
   </script>
